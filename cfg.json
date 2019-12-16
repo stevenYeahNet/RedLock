@@ -1,0 +1,11 @@
+{
+  "RedisServerList": [
+    {"RedisHost":"127.0.0.1","RedisPort":6379},
+    {"RedisHost":"127.0.0.1","RedisPort":6380},
+    {"RedisHost":"127.0.0.1","RedisPort":6381}
+  ],
+  "TTL": 30000,
+  "RetryCount" : 3,
+  "RetryDelay" : 300,
+  "ClockDriftFactor" : 0.01
+}
