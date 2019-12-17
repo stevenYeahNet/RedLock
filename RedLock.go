@@ -7,6 +7,7 @@ import (
 	"math/rand"
 	"os"
 	"time"
+	"./logging"
 )
 
 var unLockScript = redis.NewScript(1,"if redis.call('get', KEYS[1]) == ARGV[1] " +
@@ -71,8 +72,8 @@ func Lock(resource string) bool {
 		drift := int32(RedCfgParm.ClockDriftFactor * float32(RedCfgParm.TTl) + 2)
 		endTime := time.Now().UnixNano() / int64(time.Millisecond)
 		validityTime := int64(RedCfgParm.TTl) - (endTime - startTime) - int64(drift)
-		fmt.Printf("The resource validty time is %d, n is %d, quo is %d\n",
-			validityTime, cnt, QuoRum)
+		logging.Log(fmt.Sprintf("The resource validty time is %d, n is %d, quo is %d\n",
+			validityTime, cnt, QuoRum))
 		if cnt >= QuoRum && validityTime > 0 {
 			return true
 		}else {
@@ -111,7 +112,7 @@ func UnLockInstance(conn *redis.Pool,resouce,val string) bool {
 	_,err := unLockScript.Do(conn.Get(),resouce,val)
 	defer conn.Close()
 	if err != nil{
-		fmt.Printf("del redlock(%s--%s) failed:%s\n",resouce,val,err.Error())
+		logging.Log( fmt.Sprintf("del redlock(%s--%s) failed:%s\n",resouce,val,err.Error()) )
 		return false
 	}
 	return true
@@ -142,8 +143,8 @@ func ContinueLock(conn *redis.Pool,resource string,ttl int32) bool {
 		drift := int32(RedCfgParm.ClockDriftFactor * float32(ttl) + 2)
 		endTime := time.Now().UnixNano() / int64(time.Millisecond)
 		validityTime := int64(ttl) - (endTime - startTime) - int64(drift)
-		fmt.Printf("The resource validty time is %d, n is %d, quo is %d\n",
-			validityTime, cnt, QuoRum)
+		logging.Log(fmt.Sprintf("The resource validty time is %d, n is %d, quo is %d\n",
+			validityTime, cnt, QuoRum))
 		if cnt >= QuoRum && validityTime > 0 {
 			return true
 		}else {
@@ -163,7 +164,7 @@ func GetUniqueLockId() string {
 	file,err := os.OpenFile("/dev/urandom",os.O_RDONLY,0666)
 	defer file.Close()
 	if err != nil{
-		fmt.Println("open /dev/urandom failed:" + err.Error())
+		logging.Log( fmt.Sprintln("open /dev/urandom failed:" + err.Error()) )
 		return ""
 	}
 	data := make([]byte,20)
